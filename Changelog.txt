@@ -1,0 +1,32 @@
+-- V 3.1 release Sep 1 2022 --
+Author:
+  lantaren@aim.com
+  https://lantaren.bandcamp.com/ (Mostly electronic music these days)
+Notes:
+  Resolved issue with filepaths that include spaces
+
+-- V 3.0 beta (unofficial) Aug 31 2022 --
+Author:
+  lantaren@aim.com
+  https://lantaren.bandcamp.com/ (Mostly electronic music these days)
+Notes:
+  Made a couple improvements over the last version.
+  This is a clean / safe build, I decompiled the .exe and made changes as necessary to add the below features.
+Features:
+ - MP3 encoding quality selection:
+   - V2 encodes mp3 to 128kbps. This is fine, but does not have the best audio quality for a full mix.
+   - uses the following LAME encoder presets:
+     - standard (~190kbps, default)
+     - extreme (~240kbps)
+     - intense (320kbps, recommended if you plan to do additional work with the files)
+ - output directory selection
+   - still defaults to \exportedSongs, but can be changed to better reflect your workflow
+   - automatically opens output directory after conversion
+Future:
+  Not currently planning on continuing making edits to this software, however I may look into the following:
+  - Volume of individual tracks and master volume
+  - individual instrument EQ?
+  - effects?
+  - expose panning spread parameter
+  - track / settings preview
+  Almost all of these I feel are better suited to a DAW than to be built in here.

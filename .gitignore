@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+.claude/
+.venv/
+venv/
+env/
+*.egg-info/
+
+# Personal song exports — keep the reference renders in the repo if you want,
+# but avoid committing every file a contributor generates while testing.
+exportedSongs/*.mp3
+!exportedSongs/Somethin_*.mp3
+!exportedSongs/Honor.mp3
