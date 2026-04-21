@@ -4,16 +4,11 @@
   <img src="https://i.imgur.com/vD9BiVu.png" alt="POMConverterLogo" width="25%" />
 </div>
 
-A pure-Python, native-macOS port of **Punk-O-Matic 2's** song exporter
-(`POMConverter-v3.exe`). Converts POM2 song-data strings into mixed `.mp3`
-files without Wine, Mono, or `.NET`.
+A pure-Python, native-macOS port of **Punk-O-Matic 2's** song exporter (`POMConverter-v3.exe`). Converts POM2 song-data strings into mixed `.mp3` files without Wine, Mono, or `.NET`.
 
-The original converter is a Windows `.NET 2.0` WinForms app that ships with
-BASS.NET and LAME. It does not run on modern macOS (and the original
-`READ_ME_FIRST.txt` says so plainly: *"The application will not work on unix
-and mac operating systems either."*). This repo rebuilds the same conversion
-pipeline in Python 3, driven by `ffmpeg` via `pydub`, so the same song strings
-produce the same output on Apple Silicon.
+The original converter is a Windows `.NET 2.0` WinForms app that ships with BASS.NET and LAME. It does not run on modern macOS (and the original `READ_ME_FIRST.txt` says so plainly: *"The application will not work on unix and mac operating systems either."*).
+
+This repo rebuilds the same conversion pipeline in Python 3 through reverse engineering from Windows to MacOS, driven by `ffmpeg` via `pydub`, so the same song strings produce the same output on Apple Silicon.
 
 ---
 
