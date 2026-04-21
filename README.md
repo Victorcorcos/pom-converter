@@ -1,7 +1,7 @@
 # POM Converter — Native macOS Port
 
 <div align="center">
-  <img src="https://i.imgur.com/vD9BiVu.png" alt="POMConverterLogo" width="25%" />
+  <img src="https://i.imgur.com/vD9BiVu.png" alt="POMConverterLogo" width="50%" />
 </div>
 
 A pure-Python, native-macOS port of **Punk-O-Matic 2's** song exporter (`POMConverter-v3.exe`). Converts POM2 song-data strings into mixed `.mp3` files without Wine, Mono, or `.NET`.
