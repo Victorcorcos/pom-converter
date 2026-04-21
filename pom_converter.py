@@ -197,14 +197,26 @@ def _silence(ms: float) -> AudioSegment:
 
 # ── rendering ──────────────────────────────────────────────────────────────────
 
+_SLOT_MS_INT = int(round(SLOT_MS))
+_RIFF_FADE_MS = 8  # tiny fade when a sample is cut by the next riff, to avoid clicks
+
+
 def render_track(events: list[tuple[str, int]],
                  file_list: list[str]) -> AudioSegment:
     """
-    Render a single track's events to a timeline where each "slot" is
-    SLOT_MS (~1411.8 ms) wide. Samples are overlaid at slot boundaries so that
-    a sample longer than one slot bleeds into the next slot naturally.
+    Render a single track.
+
+    Each "slot" is SamplesPerRiff (62259) samples at 44100 Hz = ~1411.77 ms.
+    Behaviour (matches the Windows converter):
+      • silence event → N slots of silence; does NOT stop the previous riff
+      • riff event    → starts at its slot position and plays naturally;
+                        it only gets cut short if another riff on the same
+                        track starts before the sample ends.
+
+    Concretely, each riff's effective length is the minimum of its own
+    natural length and the distance (in slots) to the next riff on this
+    track. If no further riff follows, the sample rings out to its end.
     """
-    # First, compute the total number of slots so we can pre-allocate.
     total_slots = 0
     for kind, val in events:
         total_slots += 1 if kind == 'riff' else val
@@ -212,25 +224,44 @@ def render_track(events: list[tuple[str, int]],
     if total_slots == 0:
         return AudioSegment.silent(duration=0)
 
-    # Canvas is slot-count * SLOT_MS, plus room for the last sample to extend.
-    canvas_ms = int(round(total_slots * SLOT_MS)) + 4000
-    canvas = AudioSegment.silent(duration=canvas_ms)
-
+    # Locate each riff event's slot position; silence events just advance it.
+    riffs: list[tuple[int, int]] = []  # (start_slot, sample_index)
     pos_slot = 0
     for kind, val in events:
         if kind == 'silence':
             pos_slot += val
-            continue
-        sample = lookup_sample(file_list, val)
-        if sample is not None:
-            pos_ms = int(round(pos_slot * SLOT_MS))
-            canvas = canvas.overlay(sample, position=pos_ms)
-        pos_slot += 1
+        else:
+            riffs.append((pos_slot, val))
+            pos_slot += 1
 
-    # Trim trailing silence beyond the last slot + a small tail.
-    end_ms = int(round(total_slots * SLOT_MS)) + 2000
-    if len(canvas) > end_ms:
-        canvas = canvas[:end_ms]
+    if not riffs:
+        return AudioSegment.silent(duration=total_slots * _SLOT_MS_INT)
+
+    # Start with a canvas sized for the slot grid; extend later if the final
+    # sample rings out beyond the last slot.
+    canvas_ms = total_slots * _SLOT_MS_INT
+    canvas = AudioSegment.silent(duration=canvas_ms)
+
+    for i, (start_slot, sample_idx) in enumerate(riffs):
+        sample = lookup_sample(file_list, sample_idx)
+        if sample is None or len(sample) == 0:
+            continue
+
+        # Hold for as long as possible: until the next riff on this track,
+        # or forever (= natural sample length) if this is the last riff.
+        if i + 1 < len(riffs):
+            hold_slots = riffs[i + 1][0] - start_slot
+            hold_ms = hold_slots * _SLOT_MS_INT
+            if len(sample) > hold_ms:
+                sample = sample[:hold_ms].fade_out(_RIFF_FADE_MS)
+        # else: last riff on this track — let it ring out naturally.
+
+        pos_ms = start_slot * _SLOT_MS_INT
+        required_ms = pos_ms + len(sample)
+        if required_ms > len(canvas):
+            canvas += AudioSegment.silent(duration=required_ms - len(canvas))
+        canvas = canvas.overlay(sample, position=pos_ms)
+
     return canvas
 
 
