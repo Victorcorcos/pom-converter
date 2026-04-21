@@ -34,10 +34,15 @@ except ImportError:
     sys.exit(1)
 
 # ── constants recovered from POMConverter-v3.exe .cctor ────────────────────────
+# SamplesPerRiff (62259 @ 44100 Hz ≈ 1411.77 ms) is the length of one full
+# pre-rendered riff sample (one bar of music). The grid "box" the encoding
+# walks through, however, is half of that — two boxes per bar, ~705.87 ms —
+# which matches the tempo of the Windows converter's output.
 SAMPLES_PER_RIFF   = 62259
+SAMPLES_PER_SLOT   = SAMPLES_PER_RIFF // 2   # 31129 samples per grid box
 SAMPLES_MP3_OFFSET = 2383
 DEFAULT_FREQUENCY  = 44100
-SLOT_MS            = SAMPLES_PER_RIFF * 1000 / DEFAULT_FREQUENCY  # ≈ 1411.77 ms
+SLOT_MS            = SAMPLES_PER_SLOT * 1000 / DEFAULT_FREQUENCY  # ≈ 705.87 ms
 MP3_OFFSET_MS      = SAMPLES_MP3_OFFSET * 1000 / DEFAULT_FREQUENCY  # ≈ 54.04 ms
 
 DRUM_VOLUME_DB        = 20 * __import__('math').log10(1.9)
